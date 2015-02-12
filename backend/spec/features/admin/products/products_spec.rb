@@ -90,6 +90,34 @@ describe "Products", type: :feature do
         expect(page).not_to have_content("apache baseball cap")
       end
 
+      it "should be able to paginate deleted products" do
+          20.times do |i|
+            create(:product, name: "my_product #{i}", deleted_at: "2011-01-06 18:21:13")
+          end
+
+          visit spree.admin_products_path
+          expect(page).not_to have_content("my_product 0")
+
+          click_on 'Filter'
+          check "Show Deleted"
+          click_on 'Search'
+
+          expect(page).to have_content("my_product 0")
+
+          #click_on '2'
+          click_on '1'
+
+          expect(page).to have_content("my_product 0")
+
+          #expect(page).to have_content("my_product 3")
+
+          click_on 'Filter'
+          uncheck "Show Deleted"
+          click_on 'Search'
+
+          expect(page).not_to have_content("my_product 0")
+      end
+
       it "should be able to search products by their properties" do
         create(:product, name: 'apache baseball cap', sku: "A100")
         create(:product, name: 'apache baseball cap2', sku: "B100")
